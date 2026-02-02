@@ -1,6 +1,6 @@
 # AI 视频概要分析工具 (AI Video Summary & Analysis)
 
-一个基于 Cloudflare Pages 的现代 Web 应用，利用 Gemini 2.5 Flash Lite 大模型对视频内容进行智能分析、提取摘要并推荐标题。
+一个基于 Cloudflare Pages 的现代 Web 应用，利用多模态（比如： Gemini 2.5 Flash Lite）大模型对视频内容进行智能分析、提取摘要并推荐标题。
 
 该项目采用"即用即焚"的设计理念，注重用户隐私，仅在 Cloudflare KV 中记录匿名使用统计。
 
@@ -50,14 +50,14 @@ npx wrangler kv namespace create STATS_KV
 |--------|------|------|
 | `GEMINI_API_KEY` | 您的 Gemini API 密钥 | `sk-xxxxxx` |
 | `GEMINI_BASE_URL` | Gemini 兼容 API 地址 | `https://generativelanguage.googleapis.com/v1beta` |
-| `GEMINI_MODEL_NAME` | 模型名称 | `gemini-1.5-flash` |
+| `GEMINI_MODEL_NAME` | 模型名称 | `gemini-2.5-flash` |
 
 **本地开发配置方式:**
 在项目根目录创建 `.dev.vars` 文件 (该文件已被 `.gitignore` 忽略)：
 ```bash
 GEMINI_API_KEY=your_key
 GEMINI_BASE_URL=https://your-api-endpoint/v1beta
-GEMINI_MODEL_NAME=gemini-1.5-flash
+GEMINI_MODEL_NAME=gemini-2.5-flash
 ```
 
 ### 3. 本地运行
@@ -99,7 +99,7 @@ npx wrangler pages dev dist # 启动完整的 Pages + Functions 模拟环境 (�
    *  **Variable name** 填 `STATS_KV`，**KV namespace** 选择您在第2步创建的那个空间。
    *  保存配置并**重新部署** (Retry deployment) 以生效。
 
-#### 方式二：连接 GitHub 自动部署
+#### 方式二：连接 GitHub 自动部署（推荐）
 1. Fork 本项目到您的 GitHub。
 2. 在 Cloudflare Dashboard 点击 **Create application** -> **Pages** -> **Connect to Git**。
 3. 选择您的仓库，构建设置如下：
@@ -130,3 +130,4 @@ npx wrangler pages dev dist # 启动完整的 Pages + Functions 模拟环境 (�
 ## 📄 许可证
 
 MIT License
+
