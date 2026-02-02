@@ -1,0 +1,26 @@
+{
+  "name": "classic-video-summary-analysis",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260131.0",
+    "@types/canvas-confetti": "^1.9.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "wrangler": "^4.61.1"
+  },
+  "dependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "canvas-confetti": "^1.9.4",
+    "lucide": "^0.563.0",
+    "marked": "^17.0.1"
+  }
+}

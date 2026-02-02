@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 视频摘要助手 - 极简、高效、智能</title>
+  <meta name="description" content="上传视频，AI 为您自动提取音频并分析内容概要，生成推荐标题。" />
+</head>
+
+<body>
+  <div id="app">
+    <header>
+      <h1>AI 视频概要分析</h1>
+      <p class="subtitle">即用即焚 · 隐私安全 · 智能总结</p>
+    </header>
+
+    <main class="glass-panel">
+      <!-- Step 1: Upload -->
+      <div id="upload-step" class="upload-section">
+        <label for="file-input" class="upload-container" id="drop-zone">
+          <div class="upload-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-upload-cloud">
+              <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+              <path d="M12 12v9" />
+              <path d="m16 16-4-4-4 4" />
+            </svg>
+          </div>
+          <h3>点击或拖拽视频文件</h3>
+          <p class="upload-hint">支持 MP4, MOV, AVI 等格式，建议 25 分钟以内</p>
+          <input type="file" id="file-input" accept="video/*" />
+        </label>
+      </div>
+
+      <!-- Step 2: Processing -->
+      <div id="processing-step" class="status-section">
+        <div class="status-header">
+          <h3 id="status-title">正在处理音频...</h3>
+          <div class="loader" id="main-loader"></div>
+        </div>
+        <div class="progress-bar-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <div class="status-text">
+          <span id="status-detail">准备 FFmpeg 环境...</span>
+          <span id="progress-percent">0%</span>
+        </div>
+      </div>
+
+      <!-- Step 3: Result -->
+      <div id="result-step" class="result-section">
+        <div class="result-header">
+          <h3>分析结果</h3>
+          <span class="badge">Gemini 2.5 Flash Lite</span>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-content" id="summary-text"></div>
+        </div>
+
+        <div class="titles-section">
+          <h4>推荐命名</h4>
+          <div class="titles-list" id="titles-list"></div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+          <button class="btn" id="download-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-download">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            保存分析报告
+          </button>
+          <button class="btn btn-secondary" id="reset-btn">
+            处理另一个
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="stats-footer">
+      已为全球用户累计分析 <span id="usage-count">...</span> 个视频
+    </footer>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+name = "video-summary-analysis"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "STATS_KV"
+id = "3df60318436e4785bac0c79f45f39ac9"
