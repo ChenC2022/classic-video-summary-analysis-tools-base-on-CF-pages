@@ -7,7 +7,7 @@
   --accent: #6BA3F9;
   --text-main: #3A4A5E;
   --text-secondary: #8C9DAF;
-  
+
   /* Neumorphic Shadows */
   --raised-shadow: 9px 9px 16px var(--dark-shadow), -9px -9px 16px var(--light-shadow);
   --inset-shadow: inset 6px 6px 12px var(--dark-shadow), inset -6px -6px 12px var(--light-shadow);
@@ -233,12 +233,26 @@ h1 {
   font-weight: 600;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .title-item:hover {
   box-shadow: var(--raised-shadow-hover);
   transform: translateY(-2px);
   color: var(--accent);
+}
+
+.title-item:active {
+  box-shadow: var(--inset-shadow-active);
+  transform: translateY(1px);
+}
+
+.title-item.copied {
+  color: #10b981;
+  box-shadow: var(--inset-shadow);
+  background: rgba(16, 185, 129, 0.05);
 }
 
 /* Buttons */
@@ -310,6 +324,7 @@ h1 {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -321,6 +336,7 @@ h1 {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

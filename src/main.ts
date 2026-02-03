@@ -148,6 +148,26 @@ async function showResult(text: string) {
     const item = document.createElement('div');
     item.className = 'title-item';
     item.innerText = t;
+    item.setAttribute('role', 'button');
+    item.setAttribute('aria-label', `点击复制标题: ${t}`);
+    item.title = '点击复制';
+
+    item.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(t);
+        const originalText = item.innerText;
+        item.innerText = '✅ 已复制到剪贴板';
+        item.classList.add('copied');
+
+        setTimeout(() => {
+          item.innerText = originalText;
+          item.classList.remove('copied');
+        }, 1500);
+      } catch (err) {
+        console.error('复制失败:', err);
+      }
+    });
+
     titlesList.appendChild(item);
   });
 
