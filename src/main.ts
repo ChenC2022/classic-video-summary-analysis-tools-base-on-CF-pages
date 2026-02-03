@@ -162,7 +162,7 @@ async function showResult(text: string) {
     particleCount: 100,
     spread: 70,
     origin: { y: 0.6 },
-    colors: ['#5d5dff', '#a855f7', '#10b981']
+    colors: ['#6BA3F9', '#8C9DAF', '#A3B1C6']
   });
 
   updateStats();
