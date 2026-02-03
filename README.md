@@ -11,7 +11,7 @@
 - **🔒 隐私安全**: 视频音频在浏览器端提取（FFmpeg.wasm），仅音频数据被发送至后端分析，分析完成后立即销毁。
 - **📂 多格式支持**: 支持 MP4, MOV, AVI 等常见视频格式。
 - **🧠 智能分析**: 集成 Gemini 2.5 Flash Lite 多模态大模型，精准提取核心内容。
-- **🎨 现代 UI**: 极简、全响应式的深色玻璃态 (Glassmorphism) 设计。
+- **🎨 现代 UI**: 极致细腻的**新拟物化 (Neumorphism)** 设计，支持点击复制推荐标题。
 - **📊 实时统计**: 简单的全站累计使用量统计。
 
 ## 🛠 技术栈
@@ -99,14 +99,34 @@ npx wrangler pages dev dist # 启动完整的 Pages + Functions 模拟环境 (�
    *  **Variable name** 填 `STATS_KV`，**KV namespace** 选择您在第2步创建的那个空间。
    *  保存配置并**重新部署** (Retry deployment) 以生效。
 
-#### 方式二：连接 GitHub 自动部署（推荐）
-1. Fork 本项目到您的 GitHub。
-2. 在 Cloudflare Dashboard 点击 **Create application** -> **Pages** -> **Connect to Git**。
-3. 选择您的仓库，构建设置如下：
-   *  **Framework preset**: Vite
-   *  **Build command**: `npm run build`
-   *  **Build output directory**: `dist`
-4. 项目创建后，进入 **Settings** 进行同上所述的 **Environment variables** 和 **KV Bindings** 配置。
+#### 方式二：连接 GitHub 自动部署（推荐方案）
+这是最推荐的方式，配置一次后，您只需 `git push` 即可自动同步更新线上版本。
+
+1. **Fork & Sync**: Fork 本项目到您的 GitHub 账号。
+2. **创建项目**:
+   - 登录 [Cloudflare Dashboard](https://dash.cloudflare.com/)。
+   - 点击 **Workers & Pages** -> **Create application** -> **Pages** -> **Connect to Git**。
+   - 选择您 Fork 的 `classic-video-summary-analysis-tools-base-on-CF-pages` 仓库。
+3. **构建配置 (Build Settings)**:
+   - **Framework preset**: `Vite` (如果没有自动识别，请选择 `None`)。
+   - **Build command**: `npm run build`
+   - **Build output directory**: `dist`
+   - **Root directory**: `/`
+4. **环境变量与配置 (必须配置)**:
+   - 进入项目页面 -> **Settings** -> **Environment variables**。
+   - 添加以下变量（详见前文“配置环境”部分）：`GEMINI_API_KEY`, `GEMINI_BASE_URL`, `GEMINI_MODEL_NAME`。
+5. **绑定 KV 命名空间 (必须配置)**:
+   - 进入 **Settings** -> **Functions** -> **KV namespace bindings**。
+   - 点击 **Add binding**：
+     - **Variable name**: `STATS_KV`
+     - **KV namespace**: 选择您预先创建好的 KV。
+6. **兼容性配置**:
+   - 进入 **Settings** -> **Functions** -> **Compatibility flags**。
+   - 建议确保 **Compatibility date** 为最新，或至少在 `2024-01-01` 之后。
+7. **重新部署**:
+   - 修改完以上设置后，返回 **Deployments** 页面，点击最新的部署右侧的 `...` -> **Retry deployment**。
+
+> **💡 技术提示**: 本项目已包含 `vite.config.ts`，它自动处理了浏览器端的 `SharedArrayBuffer` 安全隔离头 (COOP/COEP) 以及 FFmpeg Worker 的依赖排除，确保在 Pages 环境下能够直接运行。
 
 ## 📂 目录结构
 
