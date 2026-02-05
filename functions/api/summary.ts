@@ -21,11 +21,15 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         const blob = await context.request.blob();
         const arrayBuffer = await blob.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
-        let binary = '';
-        for (let i = 0; i < bytes.byteLength; i++) {
-            binary += String.fromCharCode(bytes[i]);
+        
+        // Efficient Base64 conversion using chunked processing
+        // This avoids string concatenation O(n^2) issues and large memory allocations
+        let base64Audio = '';
+        const CHUNK_SIZE = 8192;
+        for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+            const chunk = bytes.subarray(i, i + CHUNK_SIZE);
+            base64Audio += btoa(String.fromCharCode.apply(null, chunk as unknown as number[]));
         }
-        const base64Audio = btoa(binary);
 
         const systemPrompt = GEMINI_PROMPT ||
             "你是一个视频内容分析专家。请分析这段视频音频内容，提供一个简洁扼要的总结（包含核心内容、关键点），并推荐3-5个吸引人的视频标题。请用中文回答。";
