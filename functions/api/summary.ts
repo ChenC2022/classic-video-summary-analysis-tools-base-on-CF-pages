@@ -21,7 +21,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         const blob = await context.request.blob();
         const arrayBuffer = await blob.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
-        
+
         // Efficient Base64 conversion using chunked processing
         // This avoids string concatenation O(n^2) issues and large memory allocations
         let base64Audio = '';
@@ -38,10 +38,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         // Remove trailing slash if present for robustness
         const baseUrl = GEMINI_BASE_URL.replace(/\/$/, "");
 
-        const response = await fetch(`${baseUrl}/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`, {
+        const apiUrl = `${baseUrl}/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                // Add Authorization header for proxies that require it (sk- style keys)
+                'Authorization': `Bearer ${GEMINI_API_KEY}`,
             },
             body: JSON.stringify({
                 contents: [{
@@ -49,7 +53,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                         { text: systemPrompt },
                         {
                             inlineData: {
-                                mimeType: "audio/mp3", // Assuming mp3 from ffmpeg
+                                mimeType: "audio/mpeg", // Standard MIME type for mp3
                                 data: base64Audio
                             }
                         }
@@ -65,7 +69,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         const data: any = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error?.message || 'Gemini API Error');
+            console.error('Gemini API Error Detail:', {
+                status: response.status,
+                url: apiUrl.replace(GEMINI_API_KEY, 'REDACTED'),
+                error: data
+            });
+            throw new Error(data.error?.message || `Gemini API Error (Status ${response.status})`);
         }
 
         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "分析失败，请稍后重试。";

@@ -57,11 +57,7 @@ npx wrangler kv namespace create STATS_KV
 ```bash
 GEMINI_API_KEY=your_key
 GEMINI_BASE_URL=https://your-api-endpoint/v1beta
-GEMINI_MODEL_NAME=gemini-2.5-flash
-```
-
-### 3. 本地运行
-
+GEMINI_MODEL_NAME=gemini-2.5-flash-lite
 ```bash
 npm run dev      # 启动前端开发服务器 (仅前端)
 # 或者
