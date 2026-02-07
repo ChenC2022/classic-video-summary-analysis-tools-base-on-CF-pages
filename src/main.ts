@@ -40,7 +40,7 @@ async function loadFFmpeg() {
     updateProgress(p, `正在转码音频... ${p}%`);
   });
 
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
+  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm';
   await ffmpeg.load({
     coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
     wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
@@ -69,6 +69,11 @@ async function updateStats() {
 // Extract Audio and Analyze
 async function processVideo(file: File) {
   try {
+    // Pre-flight check for Safari/MacOS cross-origin isolation
+    if (!window.crossOriginIsolated) {
+      throw new Error('由于浏览器安全限制（未开启跨域隔离），无法启动视频处理引擎。请确保使用最新的 Chrome、Edge 或 Safari 浏览器，并检查服务器配置。');
+    }
+
     // Switch to processing view
     uploadStep.style.display = 'none';
     processingStep.style.display = 'flex';
@@ -103,7 +108,8 @@ async function processVideo(file: File) {
     await fm.deleteFile('output.mp3');
 
   } catch (err: any) {
-    alert('错误: ' + err.message);
+    const errMsg = err?.message || (typeof err === 'string' ? err : JSON.stringify(err)) || '未知错误';
+    alert('错误: ' + errMsg);
     reset();
   }
 }
