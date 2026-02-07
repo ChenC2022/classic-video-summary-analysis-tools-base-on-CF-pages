@@ -50,7 +50,7 @@ npx wrangler kv namespace create STATS_KV
 |--------|------|------|
 | `GEMINI_API_KEY` | 您的 Gemini API 密钥 | `sk-xxxxxx` |
 | `GEMINI_BASE_URL` | Gemini 兼容 API 地址 | `https://generativelanguage.googleapis.com/v1beta` |
-| `GEMINI_MODEL_NAME` | 模型名称 | `gemini-2.5-flash` |
+| `GEMINI_MODEL_NAME` | 模型名称 | `gemini-2.5-flash-lite` |
 
 **本地开发配置方式:**
 在项目根目录创建 `.dev.vars` 文件 (该文件已被 `.gitignore` 忽略)：
@@ -58,6 +58,10 @@ npx wrangler kv namespace create STATS_KV
 GEMINI_API_KEY=your_key
 GEMINI_BASE_URL=https://your-api-endpoint/v1beta
 GEMINI_MODEL_NAME=gemini-2.5-flash-lite
+```
+
+### 3. 本地运行
+
 ```bash
 npm run dev      # 启动前端开发服务器 (仅前端)
 # 或者
