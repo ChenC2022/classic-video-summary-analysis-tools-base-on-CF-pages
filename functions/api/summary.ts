@@ -21,25 +21,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         const blob = await context.request.blob();
         const arrayBuffer = await blob.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
-
-        // Keep chunked conversion for stability
-        let base64Audio = '';
-        const CHUNK_SIZE = 8192;
-        for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
-            const chunk = bytes.subarray(i, i + CHUNK_SIZE);
-            base64Audio += btoa(String.fromCharCode.apply(null, chunk as unknown as number[]));
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
         }
+        const base64Audio = btoa(binary);
 
         const systemPrompt = GEMINI_PROMPT ||
             "你是一个视频内容分析专家。请分析这段视频音频内容，提供一个简洁扼要的总结（包含核心内容、关键点），并推荐3-5个吸引人的视频标题。请用中文回答。";
 
         const modelName = GEMINI_MODEL_NAME;
+        // Remove trailing slash if present for robustness
         const baseUrl = GEMINI_BASE_URL.replace(/\/$/, "");
 
-        // Revert to original simple request style that was working
-        const url = `${baseUrl}/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
-
-        const response = await fetch(url, {
+        const response = await fetch(`${baseUrl}/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -50,7 +45,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                         { text: systemPrompt },
                         {
                             inlineData: {
-                                mimeType: "audio/mp3", // Original MIME type
+                                mimeType: "audio/mp3", // Assuming mp3 from ffmpeg
                                 data: base64Audio
                             }
                         }
@@ -65,14 +60,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
         const data: any = await response.json();
 
-        if (!response.ok || data.error) {
-            // Enhanced logging still useful
-            console.error('Gemini API Error Detail:', {
-                status: response.status,
-                error: data.error || data
-            });
-            const msg = data.error?.message || (typeof data === 'string' ? data : JSON.stringify(data));
-            throw new Error(msg || 'Gemini API Error');
+        if (!response.ok) {
+            throw new Error(data.error?.message || 'Gemini API Error');
         }
 
         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "分析失败，请稍后重试。";
