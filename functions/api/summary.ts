@@ -22,8 +22,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         const arrayBuffer = await blob.arrayBuffer();
         const bytes = new Uint8Array(arrayBuffer);
 
-        // Efficient Base64 conversion using chunked processing
-        // This avoids string concatenation O(n^2) issues and large memory allocations
+        // Keep chunked conversion for stability
         let base64Audio = '';
         const CHUNK_SIZE = 8192;
         for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
@@ -35,65 +34,45 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             "你是一个视频内容分析专家。请分析这段视频音频内容，提供一个简洁扼要的总结（包含核心内容、关键点），并推荐3-5个吸引人的视频标题。请用中文回答。";
 
         const modelName = GEMINI_MODEL_NAME;
-        // Remove trailing slash if present for robustness
         const baseUrl = GEMINI_BASE_URL.replace(/\/$/, "");
 
-        // Normalize API endpoint: many proxies work better with /v1/ instead of /v1beta/
-        const normalizedBaseUrl = baseUrl.replace(/\/v1beta$/, "/v1");
-        const apiUrl = `${normalizedBaseUrl}/models/${modelName}:generateContent`;
+        // Revert to original simple request style that was working
+        const url = `${baseUrl}/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
 
-        const isSkKey = GEMINI_API_KEY.startsWith('sk-');
-
-        const payload = {
-            contents: [{
-                parts: [
-                    { text: systemPrompt },
-                    {
-                        inlineData: {
-                            mimeType: "audio/mpeg",
-                            data: base64Audio
-                        }
-                    }
-                ]
-            }],
-            generationConfig: {
-                temperature: 0.7,
-                maxOutputTokens: 1024,
-            }
-        };
-
-        console.log('Requesting Gemini via Proxy:', {
-            url: apiUrl,
-            model: modelName,
-            authMode: isSkKey ? 'Bearer' : 'KeyParam',
-            payloadSize: JSON.stringify(payload).length
-        });
-
-        const fetchUrl = isSkKey ? apiUrl : `${apiUrl}?key=${GEMINI_API_KEY}`;
-        const headers: Record<string, string> = {
-            'Content-Type': 'application/json'
-        };
-
-        if (isSkKey) {
-            headers['Authorization'] = `Bearer ${GEMINI_API_KEY}`;
-        }
-
-        const response = await fetch(fetchUrl, {
+        const response = await fetch(url, {
             method: 'POST',
-            headers: headers,
-            body: JSON.stringify(payload)
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [
+                        { text: systemPrompt },
+                        {
+                            inlineData: {
+                                mimeType: "audio/mp3", // Original MIME type
+                                data: base64Audio
+                            }
+                        }
+                    ]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 1024,
+                }
+            })
         });
 
         const data: any = await response.json();
 
-        // Check for error both in status and in payload (some proxies return 200 with error body)
         if (!response.ok || data.error) {
+            // Enhanced logging still useful
             console.error('Gemini API Error Detail:', {
                 status: response.status,
                 error: data.error || data
             });
-            const errorMsg = data.error?.message || data.message || `API Error (Status ${response.status})`;
-            throw new Error(errorMsg);
+            const msg = data.error?.message || (typeof data === 'string' ? data : JSON.stringify(data));
+            throw new Error(msg || 'Gemini API Error');
         }
 
         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "分析失败，请稍后重试。";
