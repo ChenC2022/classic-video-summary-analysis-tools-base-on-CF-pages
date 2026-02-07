@@ -40,30 +40,37 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
         const apiUrl = `${baseUrl}/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
 
+        const payload = {
+            contents: [{
+                parts: [
+                    { text: `${systemPrompt}\n\n[音频数据已附加至此请求，Base64 长度: ${base64Audio.length}]` },
+                    {
+                        inlineData: {
+                            mimeType: "audio/mpeg",
+                            data: base64Audio
+                        }
+                    }
+                ]
+            }],
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 1024,
+            }
+        };
+
+        console.log('Sending request to Gemini Proxy:', {
+            url: apiUrl.replace(GEMINI_API_KEY, 'REDACTED'),
+            model: modelName,
+            payloadSize: JSON.stringify(payload).length
+        });
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // Add Authorization header for proxies that require it (sk- style keys)
                 'Authorization': `Bearer ${GEMINI_API_KEY}`,
             },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [
-                        { text: systemPrompt },
-                        {
-                            inlineData: {
-                                mimeType: "audio/mpeg", // Standard MIME type for mp3
-                                data: base64Audio
-                            }
-                        }
-                    ]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 1024,
-                }
-            })
+            body: JSON.stringify(payload)
         });
 
         const data: any = await response.json();
