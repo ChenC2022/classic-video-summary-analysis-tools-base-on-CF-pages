@@ -38,12 +38,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         // Remove trailing slash if present for robustness
         const baseUrl = GEMINI_BASE_URL.replace(/\/$/, "");
 
-        const apiUrl = `${baseUrl}/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`;
+        // Normalize API endpoint: many proxies work better with /v1/ instead of /v1beta/
+        const normalizedBaseUrl = baseUrl.replace(/\/v1beta$/, "/v1");
+        const apiUrl = `${normalizedBaseUrl}/models/${modelName}:generateContent`;
+
+        const isSkKey = GEMINI_API_KEY.startsWith('sk-');
 
         const payload = {
             contents: [{
                 parts: [
-                    { text: `${systemPrompt}\n\n[音频数据已附加至此请求，Base64 长度: ${base64Audio.length}]` },
+                    { text: systemPrompt },
                     {
                         inlineData: {
                             mimeType: "audio/mpeg",
@@ -58,30 +62,38 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             }
         };
 
-        console.log('Sending request to Gemini Proxy:', {
-            url: apiUrl.replace(GEMINI_API_KEY, 'REDACTED'),
+        console.log('Requesting Gemini via Proxy:', {
+            url: apiUrl,
             model: modelName,
+            authMode: isSkKey ? 'Bearer' : 'KeyParam',
             payloadSize: JSON.stringify(payload).length
         });
 
-        const response = await fetch(apiUrl, {
+        const fetchUrl = isSkKey ? apiUrl : `${apiUrl}?key=${GEMINI_API_KEY}`;
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json'
+        };
+
+        if (isSkKey) {
+            headers['Authorization'] = `Bearer ${GEMINI_API_KEY}`;
+        }
+
+        const response = await fetch(fetchUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${GEMINI_API_KEY}`,
-            },
+            headers: headers,
             body: JSON.stringify(payload)
         });
 
         const data: any = await response.json();
 
-        if (!response.ok) {
+        // Check for error both in status and in payload (some proxies return 200 with error body)
+        if (!response.ok || data.error) {
             console.error('Gemini API Error Detail:', {
                 status: response.status,
-                url: apiUrl.replace(GEMINI_API_KEY, 'REDACTED'),
-                error: data
+                error: data.error || data
             });
-            throw new Error(data.error?.message || `Gemini API Error (Status ${response.status})`);
+            const errorMsg = data.error?.message || data.message || `API Error (Status ${response.status})`;
+            throw new Error(errorMsg);
         }
 
         const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "分析失败，请稍后重试。";
