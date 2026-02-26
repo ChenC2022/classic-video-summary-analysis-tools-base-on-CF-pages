@@ -11,9 +11,24 @@
 
 <body>
   <div id="app">
+    <!-- 页面背景音乐（MP3 放在 public/bgm.mp3）-->
+    <audio id="bgm-audio" loop preload="metadata" aria-label="页面背景音乐">
+      <source src="/bgm.mp3" type="audio/mpeg" />
+    </audio>
     <header>
       <h1>AI 视频概要分析</h1>
       <p class="subtitle">即用即焚 · 隐私安全 · 智能总结</p>
+      <div class="bgm-area">
+        <div class="bgm-info">
+          <span class="bgm-label">播放背景音乐:</span>
+          <span class="bgm-song">放过</span>
+          <span class="bgm-meta">作词人: 申燕</span>
+        </div>
+        <button type="button" class="bgm-toggle" id="bgm-toggle" aria-label="播放或暂停背景音乐" title="背景音乐">
+          <svg class="bgm-icon bgm-icon-play" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <svg class="bgm-icon bgm-icon-pause" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+      </div>
     </header>
 
     <main class="glass-panel">

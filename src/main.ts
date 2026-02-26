@@ -21,6 +21,8 @@ const titlesList = document.getElementById('titles-list')!;
 const usageCountEl = document.getElementById('usage-count')!;
 const downloadBtn = document.getElementById('download-btn')!;
 const resetBtn = document.getElementById('reset-btn')!;
+const bgmAudio = document.getElementById('bgm-audio') as HTMLAudioElement;
+const bgmToggle = document.getElementById('bgm-toggle')!;
 
 // Initialize FFmpeg
 async function loadFFmpeg() {
@@ -239,5 +241,50 @@ dropZone.addEventListener('drop', (e) => {
   }
 });
 
+// 页面背景音乐：尝试进入页面时自动播放，若被浏览器拦截则需用户点击
+function initBgm() {
+  if (!bgmAudio || !bgmToggle) return;
+
+  function updateBgmButton() {
+    bgmToggle.classList.toggle('playing', !bgmAudio.paused);
+    bgmToggle.setAttribute('aria-label', bgmAudio.paused ? '播放背景音乐' : '暂停背景音乐');
+  }
+
+  bgmToggle.addEventListener('click', async () => {
+    try {
+      if (bgmAudio.paused) {
+        await bgmAudio.play();
+      } else {
+        bgmAudio.pause();
+      }
+      updateBgmButton();
+    } catch (e) {
+      console.warn('背景音乐播放失败:', e);
+    }
+  });
+
+  bgmAudio.addEventListener('play', updateBgmButton);
+  bgmAudio.addEventListener('pause', updateBgmButton);
+  updateBgmButton();
+
+  // 进入页面时尝试自动播放（部分浏览器/环境下会成功，被拦截时静默失败）
+  bgmAudio.play().then(() => updateBgmButton()).catch(() => {});
+
+  // 用户首次与页面交互时再试一次自动播放（多数浏览器需至少一次点击才允许声音）
+  const tryAutoplay = async () => {
+    if (bgmAudio.paused) {
+      try {
+        await bgmAudio.play();
+        updateBgmButton();
+      } catch (_) { /* 忽略，用户可手动点播放 */ }
+    }
+    document.removeEventListener('click', tryAutoplay);
+    document.removeEventListener('keydown', tryAutoplay);
+  };
+  document.addEventListener('click', tryAutoplay, { once: true });
+  document.addEventListener('keydown', tryAutoplay, { once: true });
+}
+
 // Init
 updateStats();
+initBgm();

@@ -12,6 +12,7 @@
 - **📂 多格式支持**: 支持 MP4, MOV, AVI 等常见视频格式。
 - **🧠 智能分析**: 集成 Gemini 2.5 Flash Lite 多模态大模型，精准提取核心内容。
 - **🎨 现代 UI**: 极致细腻的**新拟物化 (Neumorphism)** 设计，支持点击复制推荐标题。
+- **🎵 页面背景音乐**: 可选配置首页 BGM（将 MP3 放入 `public/bgm.mp3`），支持进入页面时尝试自动播放与播放/暂停控制；若浏览器拦截自动播放，用户点击一次即可开启。
 - **📊 实时统计**: 简单的全站累计使用量统计。
 
 ## 🛠 技术栈
@@ -139,9 +140,12 @@ npx wrangler pages dev dist # 启动完整的 Pages + Functions 模拟环境 (�
 │   ├── main.ts      # 核心交互逻辑 (FFmpeg, UI Update)
 │   └── style.css    # 样式文件
 ├── public/          # 静态资源
-│   └── _headers     # 跨域隔离配置 (SharedArrayBuffer 支持)
+│   ├── _headers     # 跨域隔离配置 (SharedArrayBuffer 支持)
+│   └── bgm.mp3      # 可选：页面背景音乐，放置后标题旁显示歌名/作词人信息与播放按钮
 └── wrangler.toml    # Cloudflare 配置文件
 ```
+
+**页面背景音乐（可选）**：将 MP3 命名为 `bgm.mp3` 放入 `public/` 即可。页面加载时会尝试自动播放；若被浏览器拦截，用户点击播放按钮或页面任意处后可播放。歌名、作词人等展示可在 `index.html` 的 `.bgm-info` 区域修改。
 
 ## 🤝 贡献
 
