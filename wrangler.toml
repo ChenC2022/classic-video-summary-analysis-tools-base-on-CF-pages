@@ -4,4 +4,4 @@ pages_build_output_dir = "dist"
 
 [[kv_namespaces]]
 binding = "STATS_KV"
-id = "3df60318436e4785bac0c79f45f39ac9"
+id = "8b94e642021f409084358e22d834ffbe"
